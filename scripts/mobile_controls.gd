@@ -5,7 +5,7 @@ var left_finger := -1
 var look_finger := -1
 var stick_origin := Vector2.ZERO
 var stick_vector := Vector2.ZERO
-var look_sensitivity := 0.004
+var look_sensitivity := 1.0
 var held_actions: Array[String] = []
 
 func _ready() -> void:
