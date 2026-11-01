@@ -3,6 +3,7 @@ extends Node3D
 const PLAYER_SCRIPT = preload("res://scripts/player.gd")
 const ZOMBIE_SCRIPT = preload("res://scripts/zombie.gd")
 const LOOT_SCRIPT = preload("res://scripts/loot.gd")
+const MOBILE_CONTROLS_SCRIPT = preload("res://scripts/mobile_controls.gd")
 var player
 var hud: CanvasLayer
 var elapsed := 0.0
@@ -158,6 +159,11 @@ func _create_hud() -> void:
     clock_label.position = Vector2(18, 205)
     hud.add_child(clock_label)
     player.stats_changed.connect(_update_hud)
+    var mobile_controls := Control.new()
+    mobile_controls.name = "MobileControls"
+    mobile_controls.set_script(MOBILE_CONTROLS_SCRIPT)
+    mobile_controls.set("player", player)
+    hud.add_child(mobile_controls)
 
 func _add_stat(parent: VBoxContainer, label_text: String, color: Color) -> ProgressBar:
     var label := Label.new()
