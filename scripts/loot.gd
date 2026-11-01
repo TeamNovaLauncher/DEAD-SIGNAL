@@ -1,6 +1,6 @@
 extends Area3D
 
-func collect(player: Node) -> void:
+func collect(player) -> void:
     var kind: int = int(get_meta("loot_type", 0))
     match kind:
         0:
