@@ -14,6 +14,24 @@ var health_bar: ProgressBar
 var hunger_bar: ProgressBar
 var thirst_bar: ProgressBar
 var ammo_label: Label
+var stamina_bar: ProgressBar
+var sun_light: DirectionalLight3D
+var world_environment: Environment
+var clock_label: Label
+var day_clock := 0.28
+
+func _process(delta: float) -> void:
+    day_clock = fposmod(day_clock + delta * 0.0012, 1.0)
+    var sun_angle := day_clock * TAU - PI * 0.5
+    sun_light.rotation = Vector3(sun_angle, -0.55, 0.0)
+    var daylight := clampf(sin(sun_angle) * 0.8 + 0.25, 0.08, 1.0)
+    sun_light.light_energy = daylight
+    world_environment.ambient_light_energy = 0.12 + daylight * 0.42
+    world_environment.fog_density = 0.009 if daylight > 0.25 else 0.016
+    if is_instance_valid(clock_label):
+        var hour := int(day_clock * 24.0)
+        var minute := int(fposmod(day_clock * 1440.0, 60.0))
+        clock_label.text = "CITY TIME  %02d:%02d  |  SIGNAL LOST" % [hour, minute]
 
 func _ready() -> void:
     randomize()
@@ -32,7 +50,7 @@ func _setup_input() -> void:
         "move_forward":[KEY_W, KEY_UP], "move_back":[KEY_S, KEY_DOWN],
         "move_left":[KEY_A, KEY_LEFT], "move_right":[KEY_D, KEY_RIGHT],
         "sprint":[KEY_SHIFT], "jump":[KEY_SPACE], "fire":[KEY_F],
-        "heal":[KEY_H], "interact":[KEY_E]
+        "heal":[KEY_H], "interact":[KEY_E], "crouch":[KEY_C], "reload":[KEY_R], "eat":[KEY_1], "drink":[KEY_2]
     }
     for action in actions:
         if not InputMap.has_action(action):
@@ -43,13 +61,15 @@ func _setup_input() -> void:
             InputMap.action_add_event(action, event)
 
 func _create_lighting() -> void:
-    var sun := DirectionalLight3D.new()
+    sun_light = DirectionalLight3D.new()
+    var sun := sun_light
     sun.rotation_degrees = Vector3(-48, -32, 0)
     sun.light_energy = 0.45
     sun.shadow_enabled = true
     add_child(sun)
     var env := WorldEnvironment.new()
     var environment := Environment.new()
+    world_environment = environment
     environment.background_mode = Environment.BG_SKY
     environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
     environment.ambient_light_color = Color(0.24, 0.29, 0.34)
@@ -120,20 +140,24 @@ func _create_hud() -> void:
     title.add_theme_color_override("font_color", Color(0.8,0.91,0.86))
     column.add_child(title)
     health_bar = _add_stat(column, "HEALTH", Color(0.75,0.12,0.1))
+    stamina_bar = _add_stat(column, "STAMINA", Color(0.7,0.7,0.7))
     hunger_bar = _add_stat(column, "HUNGER", Color(0.8,0.55,0.12))
     thirst_bar = _add_stat(column, "THIRST", Color(0.12,0.55,0.8))
     ammo_label = Label.new()
-    ammo_label.text = "AMMO: 24  |  MEDKITS: 2"
+    ammo_label.text = "9MM: 12/48  |  MEDKITS: 2"
     column.add_child(ammo_label)
     status_label = Label.new()
     status_label.position = Vector2(18, 172)
-    status_label.text = "WASD move  |  SHIFT sprint  |  F fire  |  H medkit  |  E loot"
+    status_label.text = "WASD MOVE  |  SHIFT RUN  |  C CROUCH  |  LMB FIRE  |  R RELOAD  |  E LOOT"
     hud.add_child(status_label)
     var cross := Label.new()
     cross.text = "+"
     cross.add_theme_font_size_override("font_size", 28)
     cross.position = Vector2(632, 342)
     hud.add_child(cross)
+    clock_label = Label.new()
+    clock_label.position = Vector2(18, 205)
+    hud.add_child(clock_label)
     player.stats_changed.connect(_update_hud)
 
 func _add_stat(parent: VBoxContainer, label_text: String, color: Color) -> ProgressBar:
@@ -148,17 +172,19 @@ func _add_stat(parent: VBoxContainer, label_text: String, color: Color) -> Progr
     parent.add_child(bar)
     return bar
 
-func _update_hud(h: float, food: float, water: float, bullets: int) -> void:
+func _update_hud(h: float, food: float, water: float, stamina: float, bullets: int) -> void:
     health_bar.value = h
     hunger_bar.value = food
     thirst_bar.value = water
-    ammo_label.text = "AMMO: %d  |  MEDKITS: %d" % [bullets, player.medkits]
+    stamina_bar.value = stamina
+    ammo_label.text = "9MM: %d/%d  |  MED: %d  FOOD: %d  WATER: %d" % [bullets, player.reserve_ammo, player.medkits, player.food, player.water]
     if h <= 25:
         status_label.text = "CRITICAL: FIND MEDICAL SUPPLIES!"
 
 func _spawn_zombie(pos: Vector3) -> void:
     var zombie := CharacterBody3D.new()
     zombie.set_script(ZOMBIE_SCRIPT)
+    zombie.infected_type = randi_range(0, 3)
     zombie.position = pos
     var shape := CollisionShape3D.new()
     var capsule := CapsuleShape3D.new()
