@@ -183,7 +183,7 @@ func _update_hud(h: float, food: float, water: float, stamina: float, bullets: i
 func _spawn_zombie(pos: Vector3) -> void:
     var zombie := CharacterBody3D.new()
     zombie.set_script(ZOMBIE_SCRIPT)
-    zombie.infected_type = randi_range(0, 3)
+    zombie.set("infected_type", randi_range(0, 3))
     zombie.position = pos
     var shape := CollisionShape3D.new()
     var capsule := CapsuleShape3D.new()
