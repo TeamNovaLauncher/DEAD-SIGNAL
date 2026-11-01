@@ -15,26 +15,27 @@ on:
 
 jobs:
   android:
-    name: Export DEAD SIGNAL APK
+    name: Validate and export DEAD SIGNAL
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.3.0
+      image: barichello/godot-ci:4.3
     steps:
-      - name: Checkout
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Verify Godot project
+      - name: Check Godot project
         run: godot --headless --editor --path . --quit
 
-      - name: Export Android APK
+      - name: Export debug APK
         run: |
           mkdir -p build
           godot --headless --path . --export-debug "Android" build/DEAD-SIGNAL.apk
+          test -s build/DEAD-SIGNAL.apk
 
-      - name: Upload APK
+      - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
-          name: DEAD-SIGNAL-Android
+          name: DEAD-SIGNAL-Android-APK
           path: build/DEAD-SIGNAL.apk
           if-no-files-found: error
           retention-days: 30
