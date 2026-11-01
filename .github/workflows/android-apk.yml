@@ -65,7 +65,13 @@ jobs:
           [resource]
           export/android/android_sdk_path = "/usr/local/lib/android/sdk"
           export/android/java_sdk_path = "$JAVA_HOME"
+          export/android/debug_keystore = "$HOME/.android/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
           EOF
+          mkdir -p "$HOME/.android"
+          keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          test -s "$HOME/.android/debug.keystore"
           test -x "$JAVA_HOME/bin/java"
           test -x /usr/local/lib/android/sdk/platform-tools/adb
           test -d /usr/local/lib/android/sdk/ndk/23.2.8568313
@@ -77,7 +83,7 @@ jobs:
       - name: Export Android APK
         run: |
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/DEAD-SIGNAL.apk
+          godot --headless --verbose --path . --export-debug "Android" build/DEAD-SIGNAL.apk
           test -s build/DEAD-SIGNAL.apk
 
       - name: Upload APK
