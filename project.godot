@@ -2,6 +2,7 @@
 config_version=5
 
 [application]
+config/icon="res://assets/dead_signal_icon.svg"
 config/name="DEAD SIGNAL"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
