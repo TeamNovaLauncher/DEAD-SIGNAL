@@ -52,21 +52,21 @@ func _unhandled_input(event: InputEvent) -> void:
         if event.button_index == MOUSE_BUTTON_LEFT:
             Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
             shoot()
-    if event.is_action_pressed("fire"):
-        shoot()
-    if event.is_action_pressed("reload"):
-        begin_reload()
-    if event.is_action_pressed("heal"):
-        use_medkit()
-    if event.is_action_pressed("eat"):
-        consume_food()
-    if event.is_action_pressed("drink"):
-        consume_water()
-    if event.is_action_pressed("interact"):
-        interact()
 
 func _physics_process(delta: float) -> void:
     fire_cooldown = maxf(0.0, fire_cooldown - delta)
+    if Input.is_action_just_pressed("fire"):
+        shoot()
+    if Input.is_action_just_pressed("reload"):
+        begin_reload()
+    if Input.is_action_just_pressed("heal"):
+        use_medkit()
+    if Input.is_action_just_pressed("eat"):
+        consume_food()
+    if Input.is_action_just_pressed("drink"):
+        consume_water()
+    if Input.is_action_just_pressed("interact"):
+        interact()
     if is_reloading:
         reload_timer -= delta
         if reload_timer <= 0.0:
