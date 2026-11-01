@@ -3,7 +3,7 @@ extends Node3D
 const PLAYER_SCRIPT = preload("res://scripts/player.gd")
 const ZOMBIE_SCRIPT = preload("res://scripts/zombie.gd")
 const LOOT_SCRIPT = preload("res://scripts/loot.gd")
-var player: CharacterBody3D
+var player
 var hud: CanvasLayer
 var elapsed := 0.0
 var wave := 1
@@ -23,7 +23,7 @@ func _ready() -> void:
     _create_player()
     _create_hud()
     for i in range(9):
-        _spawn_zombie(Vector3(randf_range(-28, 28), 0, randf_range(-28, 28)))
+        _spawn_zombie(Vector3(randf_range(-28, 28), 0.9, randf_range(-28, 28)))
     for i in range(18):
         _spawn_loot(Vector3(randf_range(-32, 32), 0.4, randf_range(-32, 32)), i)
 
