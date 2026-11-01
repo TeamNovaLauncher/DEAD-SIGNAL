@@ -2,6 +2,7 @@ extends Node3D
 
 const PLAYER_SCRIPT = preload("res://scripts/player.gd")
 const ZOMBIE_SCRIPT = preload("res://scripts/zombie.gd")
+const LOOT_SCRIPT = preload("res://scripts/loot.gd")
 var player: CharacterBody3D
 var hud: CanvasLayer
 var elapsed := 0.0
