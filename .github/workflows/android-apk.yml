@@ -18,7 +18,7 @@ jobs:
     name: Validate and export DEAD SIGNAL
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.3
+      image: barichello/godot-ci:4.3.0
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
