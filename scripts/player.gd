@@ -38,11 +38,14 @@ func _ready() -> void:
     ray.enabled = true
     ray.collide_with_areas = true
 
+func rotate_camera(relative: Vector2) -> void:
+    rotate_y(-relative.x * mouse_sensitivity)
+    pitch = clampf(pitch - relative.y * mouse_sensitivity, -1.42, 1.42)
+    camera.rotation.x = pitch
+
 func _unhandled_input(event: InputEvent) -> void:
     if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-        rotate_y(-event.relative.x * mouse_sensitivity)
-        pitch = clampf(pitch - event.relative.y * mouse_sensitivity, -1.42, 1.42)
-        camera.rotation.x = pitch
+        rotate_camera(event.relative)
     if event.is_action_pressed("ui_cancel"):
         Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
     if event is InputEventMouseButton and event.pressed:
