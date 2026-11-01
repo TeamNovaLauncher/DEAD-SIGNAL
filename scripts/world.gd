@@ -8,7 +8,6 @@ var hud: CanvasLayer
 var elapsed := 0.0
 var wave := 1
 var spawn_timer := 0.0
-var day_clock := 0.22
 var status_label: Label
 var health_bar: ProgressBar
 var hunger_bar: ProgressBar
