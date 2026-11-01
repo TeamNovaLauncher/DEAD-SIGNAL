@@ -15,24 +15,50 @@ on:
 
 jobs:
   android:
-    name: Validate and export DEAD SIGNAL
+    name: Validate and export DEAD SIGNAL APK
     runs-on: ubuntu-latest
-    container:
-      image: barichello/godot-ci:4.3.0
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Check Godot project
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Install Godot 4.3
+        run: |
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          unzip -q Godot_v4.3-stable_linux.x86_64.zip
+          sudo mv Godot_v4.3-stable_linux.x86_64 /usr/local/bin/godot
+          sudo chmod +x /usr/local/bin/godot
+          godot --version
+
+      - name: Install Godot export templates
+        run: |
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.3.stable"
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
+          unzip -q Godot_v4.3-stable_export_templates.tpz -d /tmp/godot-templates
+          cp -a /tmp/godot-templates/templates/. "$HOME/.local/share/godot/export_templates/4.3.stable/"
+
+      - name: Validate project
         run: godot --headless --editor --path . --quit
 
-      - name: Export debug APK
+      - name: Export Android APK
         run: |
           mkdir -p build
           godot --headless --path . --export-debug "Android" build/DEAD-SIGNAL.apk
           test -s build/DEAD-SIGNAL.apk
 
-      - name: Upload installable APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: DEAD-SIGNAL-Android-APK
