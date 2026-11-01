@@ -24,6 +24,7 @@ func _ready() -> void:
     Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
     ray.target_position = Vector3(0, 0, -60)
     ray.enabled = true
+    ray.collide_with_areas = true
 
 func _unhandled_input(event: InputEvent) -> void:
     if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
